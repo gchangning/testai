@@ -1,0 +1,72 @@
+name: Block core/ changes
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
+  push:
+    branches: ["**"]
+
+jobs:
+  no-core-changes:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Fail if core/ changed (PR)
+        if: github.event_name == 'pull_request'
+        shell: bash
+        run: |
+          set -euo pipefail
+          base="${{ github.event.pull_request.base.sha }}"
+          head="${{ github.event.pull_request.head.sha }}"
+          python - <<'PY'
+          import os, subprocess, sys
+          base = os.environ["BASE_SHA"]
+          head = os.environ["HEAD_SHA"]
+          out = subprocess.check_output(["git", "diff", "--name-only", f"{base}..{head}"], text=True)
+          changed = [p.strip() for p in out.splitlines() if p.strip()]
+          core = [p for p in changed if p == "core" or p.startswith("core/")]
+          if core:
+              print("Blocked: changes detected under core/:")
+              for p in core:
+                  print(" -", p)
+              sys.exit(1)
+          print("OK: no core/ changes detected.")
+          PY
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+
+      - name: Fail if core/ changed (push)
+        if: github.event_name == 'push'
+        shell: bash
+        run: |
+          set -euo pipefail
+          before="${{ github.event.before }}"
+          after="${{ github.sha }}"
+          python - <<'PY'
+          import os, subprocess, sys
+          before = os.environ["BEFORE_SHA"]
+          after = os.environ["AFTER_SHA"]
+          # Handle first push to a branch (before can be all zeros)
+          if before == "0" * 40:
+              out = subprocess.check_output(["git", "ls-tree", "-r", "--name-only", after], text=True)
+              changed = [p.strip() for p in out.splitlines() if p.strip()]
+          else:
+              out = subprocess.check_output(["git", "diff", "--name-only", f"{before}..{after}"], text=True)
+              changed = [p.strip() for p in out.splitlines() if p.strip()]
+          core = [p for p in changed if p == "core" or p.startswith("core/")]
+          if core:
+              print("Blocked: changes detected under core/:")
+              for p in core:
+                  print(" -", p)
+              sys.exit(1)
+          print("OK: no core/ changes detected.")
+          PY
+        env:
+          BEFORE_SHA: ${{ github.event.before }}
+          AFTER_SHA: ${{ github.sha }}
+
