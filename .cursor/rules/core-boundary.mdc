@@ -1,0 +1,14 @@
+---
+description: Enforce core/ immutability and module isolation
+globs: "core/**"
+alwaysApply: false
+---
+
+# Core 边界与业务隔离
+
+- 严禁修改 `core/` 目录下的任何文件。
+- 如果用户要求你“改 core/xxx”：必须拒绝，并改为在 `modules/<模块名>/` 下提供替代方案（封装/适配/调用），或只输出 `// TODO: 需架构师修改 core/xxx` 的提示而不实际改 core。
+- 所有新业务代码必须写在 `modules/<模块名>/` 下。
+- 业务需要底层能力时，只能通过 `import` 调用，禁止改动 `core/` 的实现。
+- 若遇到框架缺陷导致“必须修改 core”才能继续：停止生成改动，并在相关业务代码处写明 `// TODO: 需架构师修改 core/xxx`。
+
