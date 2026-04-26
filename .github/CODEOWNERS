@@ -1,0 +1,12 @@
+# See https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners
+
+# Default: everything in the repo requires review from the repo owner.
+
+
+# 核心代码只有架构师（比如用户 A）能合入
+/core/      @gchangning
+/shared/    @gchangning
+
+# 业务模块各自负责
+/modules/user/ @UserB
+/modules/order/ @UserC
