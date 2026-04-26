@@ -1,6 +1,0 @@
-# 核心代码只有 @gchangning (开发者 A) 能合入
-/core/      @gchangning
-/shared/    @gchangning
-
-# 业务模块各自负责
-/modules/   @developer

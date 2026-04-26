@@ -1,0 +1,5 @@
+# See https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners
+
+# Default: everything in the repo requires review from the repo owner.
+* @gchangning
+
