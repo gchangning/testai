@@ -1,1 +1,1 @@
-"export const log = (msg) => console.log(msg);" 
+xxxnia
